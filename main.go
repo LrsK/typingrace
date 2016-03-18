@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"log"
 	"math/rand"
 	"os"
@@ -21,18 +22,19 @@ type word struct {
 }
 
 var (
-	dictionary    = []string{}
-	words         = []word{}
-	input         = make([]rune, 0, 64)
-	count         = '0'
-	pos           = 0
-	points        = 0
-	wordChan      = make(chan string, 2)
-	pause         = make(chan bool)
-	resume        = make(chan bool)
-	width, height int
-	wordLock      sync.Mutex
-	r             *rand.Rand
+	dictionary     = []string{}
+	words          = []word{}
+	input          = make([]rune, 0, 64)
+	count          = '0'
+	pos            = 0
+	points         = 0
+	wordChan       = make(chan string, 2)
+	pause          = make(chan bool)
+	resume         = make(chan bool)
+	width, height  int
+	wordLock       sync.Mutex
+	r              *rand.Rand
+	difficultyFlag = flag.String("d", "medium", "How fast the words are moving and generated.")
 )
 
 const ColDef = termbox.ColorDefault
@@ -61,7 +63,7 @@ func main() {
 		}
 	}()
 
-	difficulty := "hard"
+	difficulty := *difficultyFlag
 
 	var drawTicker <-chan time.Time
 	fastDrawTicker := time.Tick(100 * time.Millisecond)
@@ -80,6 +82,9 @@ func main() {
 		wordTicker = mediumWordTicker
 		drawTicker = mediumDrawTicker
 	} else if difficulty == "hard" {
+		wordTicker = fastWordTicker
+		drawTicker = fastDrawTicker
+	} else {
 		wordTicker = fastWordTicker
 		drawTicker = fastDrawTicker
 	}
