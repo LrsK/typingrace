@@ -22,19 +22,19 @@ type word struct {
 }
 
 var (
-	dictionary     = []string{}
-	words          = []word{}
-	input          = make([]rune, 0, 64)
-	count          = '0'
-	pos            = 0
-	points         = 0
-	wordChan       = make(chan string, 2)
-	pause          = make(chan bool)
-	resume         = make(chan bool)
-	width, height  int
-	wordLock       sync.Mutex
-	r              *rand.Rand
-	difficultyFlag = flag.String("d", "medium", "How fast the words are moving and generated.")
+	dictionary    = []string{}
+	words         = []word{}
+	input         = make([]rune, 0, 64)
+	count         = '0'
+	pos           = 0
+	points        = 0
+	wordChan      = make(chan string, 2)
+	pause         = make(chan bool)
+	resume        = make(chan bool)
+	width, height int
+	wordLock      sync.Mutex
+	r             *rand.Rand
+	speedFlag     = flag.String("s", "medium", "How fast the words move and are generated.")
 )
 
 const ColDef = termbox.ColorDefault
@@ -63,8 +63,6 @@ func main() {
 		}
 	}()
 
-	difficulty := *difficultyFlag
-
 	var drawTicker <-chan time.Time
 	fastDrawTicker := time.Tick(100 * time.Millisecond)
 	mediumDrawTicker := time.Tick(500 * time.Millisecond)
@@ -75,13 +73,13 @@ func main() {
 	mediumWordTicker := time.Tick(3 * time.Second)
 	slowWordTicker := time.Tick(6 * time.Second)
 
-	if difficulty == "easy" {
+	if *speedFlag == "easy" {
 		wordTicker = slowWordTicker
 		drawTicker = slowDrawTicker
-	} else if difficulty == "medium" {
+	} else if *speedFlag == "medium" {
 		wordTicker = mediumWordTicker
 		drawTicker = mediumDrawTicker
-	} else if difficulty == "hard" {
+	} else if *speedFlag == "hard" {
 		wordTicker = fastWordTicker
 		drawTicker = fastDrawTicker
 	} else {
